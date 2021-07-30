@@ -20,24 +20,21 @@ class MyPanel(wx.Panel):
         self.SetBackgroundColour(wx.Colour(0, 255, 0))
 
     def __do_layout(self):
-        sizer_panel_main = wx.GridSizer(1, 1, 0, 0)
         sizer_panel_components= wx.GridBagSizer(0, 0)
 
         # COMPONENTS  --------------------------------------------------------------------------------------------------
         row = 0
-        label_1 = wx.StaticText(self.panel_components, wx.ID_ANY, "DIALOG")
+        label_1 = wx.StaticText(self, wx.ID_ANY, "DIALOG")
         label_1.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
         sizer_panel_components.Add(label_1, (row, 0), (1, 3), 0, 0)
 
         row += 1
         # ...
 
-        # add to main panel --------------------------------------------------------------------------------------------
-        sizer_panel_main.Add(self.panel_components, 0, wx.EXPAND | wx.RIGHT, 0)
         # sizer_panel_main.AddGrowableRow(0)
         # sizer_panel_main.AddGrowableCol(1)
 
-        self.SetSizer(sizer_panel_main)
+        self.SetSizer(sizer_panel_components)
         self.Layout()
 
 

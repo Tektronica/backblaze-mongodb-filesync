@@ -53,7 +53,6 @@ class Collection:
 
 # Example implementation
 def main():
-    print('hello')
     # initialize collection object
     colObj = Collection(USERNAME, PASSWORD, DATABASE)
     print(colObj.findAll())

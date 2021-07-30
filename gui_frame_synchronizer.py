@@ -1,3 +1,4 @@
+
 import wx
 import wx.adv
 import wx.html
@@ -20,38 +21,21 @@ class MyFrame(wx.Frame):
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
 
-        self.SetSize((1055, 663))
+        self.SetSize((1055, 300))
         # https://stackoverflow.com/a/24704039/3382269
         # Sets minimum window dimensions
         # self.SetSizeHints(1055, 640, -1, -1)
 
-        # FILE menu tab ------------------------------------------------------------------------------------------------
-        self.frame_menubar = wx.MenuBar()
-        menu_tree = wx.Menu()
-        self.menu_results = menu_tree.Append(wx.ID_ANY, "Open Results", "")
-        self.menu_history = menu_tree.Append(wx.ID_ANY, "Open History", "")
-        menu_tree.AppendSeparator()
-        self.menu_export = menu_tree.Append(wx.ID_ANY, "Export Data", "")
-        self.frame_menubar.Append(menu_tree, "File")
+        # MAIN PANEL ===================================================================================================
+        self.panel_frame = wx.Panel(self, wx.ID_ANY)
+        self.panel_components = wx.Panel(self.panel_frame, wx.ID_ANY)
 
-        # SETTINGS menu tab --------------------------------------------------------------------------------------------
-        menu_tree = wx.Menu()
-        self.menu_config = menu_tree.Append(
-            wx.ID_ANY, "Configure Instruments", "")
-        self.menu_close_instruments = menu_tree.Append(
-            wx.ID_ANY, "Close Instruments", "")
-        menu_tree.AppendSeparator()
-
-        self.radio_menu_windowing = wx.Menu()  # submenu
-        menu_tree.AppendSubMenu(self.radio_menu_windowing, 'W&indowing')
-        menu_tree.AppendSeparator()
-
-        self.menu_DUMMY = menu_tree.AppendCheckItem(
-            wx.ID_ANY, "Use DUMMY Data?")
-        # self.menu_brkpts = wxglade_tmp_menu.Append(wx.ID_ANY, "Open Breakpoints", "")
-        self.frame_menubar.Append(menu_tree, "Settings")
+        self.panel_directory = Directory(self.panel_components, self)
+        self.panel_dialog = Dialog(self.panel_components, self)
+        self.panel_options = Options(self.panel_components, self)
 
         # VIEW menu tab ------------------------------------------------------------------------------------------------
+        self.frame_menubar = wx.MenuBar()
         menu_tree = wx.Menu()
         self.menu_reset_view = menu_tree.Append(
             wx.ID_ANY, "Reset Window Size", "")
@@ -59,14 +43,6 @@ class MyFrame(wx.Frame):
         # self.menu_brkpts = wxglade_tmp_menu.Append(wx.ID_ANY, "Open Breakpoints", "")
         self.frame_menubar.Append(menu_tree, "View")
         self.SetMenuBar(self.frame_menubar)
-
-        # MAIN PANEL ===================================================================================================
-        self.panel_frame = wx.Panel(self, wx.ID_ANY)
-        self.panel_components = wx.Panel(self.panel_frame, wx.ID_ANY)
-
-        self.panel_directory = Directory(self.panel_components)
-        self.panel_dialog = Dialog(self.panel_components)
-        self.panel_options = Options(self.panel_components)
 
         # BINDING EVENTS ===============================================================================================
         self.Bind(wx.EVT_MENU, self.reset_view, self.menu_reset_view)
@@ -86,12 +62,12 @@ class MyFrame(wx.Frame):
         sizer_panel_components = wx.GridBagSizer(0, 0)
         
         row = 0
-        sizer_panel_components.Add(self.panel_directory, (row, 0), (1, 2), wx.ALL | wx.EXPAND, 0)
+        sizer_panel_components.Add(self.panel_directory, (row, 0), (1, 2), wx.ALL | wx.EXPAND, 2)
 
         row += 1
-        sizer_panel_components.Add(self.panel_dialog, (row, 0), (1, 1), wx.ALL | wx.EXPAND, 0)
-        sizer_panel_components.Add(self.panel_options, (row, 1), (1, 1), wx.ALL | wx.EXPAND, 0)
-
+        sizer_panel_components.Add(self.panel_dialog, (row, 0), (1, 1), wx.ALL | wx.EXPAND, 2)
+        sizer_panel_components.Add(self.panel_options, (row, 1), (1, 1), wx.ALL | wx.EXPAND, 2)
+        
         self.panel_components.SetSizer(sizer_panel_components)
 
         # ------------------------------------------------------------------------------------------------------------------
