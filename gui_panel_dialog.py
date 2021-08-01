@@ -31,8 +31,6 @@ class Dialog(wx.Panel):
             self, wx.ID_ANY, choices=['jpg', 'png', 'md'])
         self.Bind(wx.EVT_COMBOBOX, self.update_tree, self.combo_file_extension)
 
-        # self.fileList = ULC.UltimateListCtrl(self, wx.ID_ANY, agwStyle=ULC.ULC_REPORT | ULC.ULC_AUTO_CHECK_CHILD | ULC.ULC_VRULES | ULC.ULC_HRULES | ULC.ULC_SINGLE_SEL | ULC.ULC_HAS_VARIABLE_ROW_HEIGHT)
-
         self.fileList = ObjectListView(self, wx.ID_ANY,
                                        sortable=False,
                                        useAlternateBackColors=False,
@@ -49,16 +47,6 @@ class Dialog(wx.Panel):
         self.SetBackgroundColour(wx.Colour(249, 168, 212))
 
         self.combo_file_extension.SetSelection(0)
-
-        # self.fileList.InsertColumn(0, "")
-        # self.fileList.InsertColumn(1, "File")
-        # self.fileList.InsertColumn(2, "Bucket Path")
-        # self.fileList.InsertColumn(3, "Local Path")
-
-        # self.fileList.SetColumnWidth(0, 50)
-        # self.fileList.SetColumnWidth(1, 200)
-        # self.fileList.SetColumnWidth(2, 400)
-        # self.fileList.SetColumnWidth(3, 400)
 
         fileNameCol = ColumnDefn("File", "left", width=300, valueGetter="filename")
         self.fileList.InstallCheckStateColumn(fileNameCol)
@@ -114,13 +102,6 @@ class Dialog(wx.Panel):
         
         self.UpdateOLV()
 
-            # self.fileList.Append((os.path.basename(localPath), bucketPath, localPath))
-
-            # row = self.fileList.SetItemWindow(row, 1, checkBox, expand=True)
-            # self.fileList.SetStringItem(row, col=1, label=os.path.basename(localPath))
-            # self.fileList.SetStringItem(row, col=2, label=bucketPath)
-            # self.fileList.SetStringItem(row, col=3, label=localPath)
-
     def UpdateOLV(self):
         """
         Remove the gap (usually intended for an icon or checkbox) in the first column of each row of an
@@ -130,9 +111,7 @@ class Dialog(wx.Panel):
         """
         print('Updating File List...')
         wx.CallAfter(self.fileList.SetObjects, self.files)
-
-        for obj in self.fileList.GetObjects():
-            self.fileList.SetCheckState(obj.fileNameCol, state=True)
+        wx.CallAfter(self.checkAllItems)
 
     def reportEvent(self, evt):
         objects = self.fileList.GetCheckedObjects()
@@ -140,7 +119,21 @@ class Dialog(wx.Panel):
         print(f'\n{len(objects)} selected files:')
         for obj in objects:
             print(obj.filename)
-        
+    
+    def checkAllItems(self):
+        wait = wx.BusyCursor()
+        msg = "Loading all files into list"
+        busyDlg = wx.BusyInfo(msg, parent=self.frame)
+
+        print('Checking all items in list')
+        objects = self.fileList.GetObjects()
+        for obj in objects:
+            # print(self.fileList.IsChecked(obj))
+            self.fileList.ToggleCheck(obj)
+            self.fileList.RefreshObjects(objects)
+
+        busyDlg = None
+        del wait
 
     def first_update(self, path):
         self.path_to_root = path
