@@ -1,5 +1,5 @@
 import wx
-from filetype_dicts import jpgObj
+from file_objects import jpgObj
 
 class Options(wx.Panel):
     def __init__(self, parent, frame):
@@ -52,7 +52,7 @@ class Options(wx.Panel):
     
     def package(self, evt):
         if self.frame is not None:
-            files = self.frame.panel_dialog.getItems()
+            files = self.frame.panel_dialog.getCheckedItems()
 
             for file in files:
                 img = jpgObj(file['filepath'])

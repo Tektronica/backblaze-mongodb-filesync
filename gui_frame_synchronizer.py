@@ -21,7 +21,7 @@ class MyFrame(wx.Frame):
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
 
-        self.SetSize((1055, 300))
+        self.SetSize((1215, 580))
         # https://stackoverflow.com/a/24704039/3382269
         # Sets minimum window dimensions
         # self.SetSizeHints(1055, 640, -1, -1)
@@ -60,18 +60,21 @@ class MyFrame(wx.Frame):
     def __do_layout(self):
         sizer_panel_frame = wx.BoxSizer(wx.VERTICAL)
         sizer_panel_components = wx.GridBagSizer(0, 0)
-        
+
+        # COMPONENTS  --------------------------------------------------------------------------------------------------
         row = 0
-        sizer_panel_components.Add(self.panel_directory, (row, 0), (1, 2), wx.ALL | wx.EXPAND, 2)
+        sizer_panel_components.Add(
+            self.panel_directory, (row, 0), (1, 2), wx.ALL | wx.EXPAND, 5)
 
         row += 1
-        sizer_panel_components.Add(self.panel_dialog, (row, 0), (1, 1), wx.ALL | wx.EXPAND, 2)
-        sizer_panel_components.Add(self.panel_options, (row, 1), (1, 1), wx.ALL | wx.EXPAND, 2)
-        
+        sizer_panel_components.Add(self.panel_dialog, (row, 0), (1, 1), wx.ALL | wx.EXPAND, 5)
+        sizer_panel_components.Add(self.panel_options, (row, 1), (1, 1), wx.ALL | wx.EXPAND, 5)
+
         self.panel_components.SetSizer(sizer_panel_components)
 
+        sizer_panel_components.AddGrowableCol(0)
         # ------------------------------------------------------------------------------------------------------------------
-        sizer_panel_frame.Add(self.panel_components, 1, wx.ALL | wx.EXPAND, 5)
+        sizer_panel_frame.Add(self.panel_components, row, 0)
 
         self.panel_frame.SetSizer(sizer_panel_frame)
 

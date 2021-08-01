@@ -12,7 +12,6 @@ class Directory(wx.Panel):
         self.frame = frame
         self.path = '/'
         self.active_thread = None
-        self.isComplete = False
 
         # PANELS =======================================================================================================
         self.panel_components = wx.Panel(self, wx.ID_ANY)
@@ -35,6 +34,7 @@ class Directory(wx.Panel):
     def __do_layout(self):
         sizer_panel_components = wx.GridBagSizer(0, 0)
 
+
         # COMPONENTS  --------------------------------------------------------------------------------------------------
         row = 0
         label_1 = wx.StaticText(self, wx.ID_ANY, "DIRECTORY")
@@ -43,15 +43,12 @@ class Directory(wx.Panel):
 
         row += 1
         sizer_panel_components.Add(self.btn_open_dialog, (row, 0), (1, 1), wx.ALL, 5)
-        sizer_panel_components.Add(self.text_directory, (row, 1), (1, 2), wx.ALL, 5)
+        sizer_panel_components.Add(self.text_directory, (row, 1), (1, 2), wx.ALL | wx.EXPAND, 5)
 
         row += 1
         # ...
 
-        # add to main panel --------------------------------------------------------------------------------------------
-
-        # sizer_panel_main.AddGrowableRow(0)
-        # sizer_panel_main.AddGrowableCol(1)
+        sizer_panel_components.AddGrowableCol(1)
 
         self.SetSizer(sizer_panel_components)
         self.Layout()
@@ -67,13 +64,13 @@ class Directory(wx.Panel):
         
 
     def text_event(self, evt):
-        if not (self.active_thread and self.isComplete):
+        if not self.active_thread:
             self.active_thread = EventThread(self)
         else:
             self.active_thread.newSig()
 
     def done(self):
-        self.isComplete = True
+        self.active_thread = None
 
         if self.frame is not None:
             self.frame.panel_dialog.first_update(self.path)
