@@ -63,8 +63,7 @@ class MyFrame(wx.Frame):
 
         # COMPONENTS  --------------------------------------------------------------------------------------------------
         row = 0
-        sizer_panel_components.Add(
-            self.panel_directory, (row, 0), (1, 2), wx.ALL | wx.EXPAND, 5)
+        sizer_panel_components.Add(self.panel_directory, (row, 0), (1, 2), wx.ALL | wx.EXPAND, 5)
 
         row += 1
         sizer_panel_components.Add(self.panel_dialog, (row, 0), (1, 1), wx.ALL | wx.EXPAND, 5)

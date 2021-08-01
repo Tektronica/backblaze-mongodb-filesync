@@ -52,7 +52,8 @@ class Dialog(wx.Panel):
         self.fileList.InstallCheckStateColumn(fileNameCol)
         self.fileList.SetColumns([
             fileNameCol,
-            ColumnDefn("Bucket Path", "left", width=400, valueGetter="bucketPath"),
+            ColumnDefn("Album", "left", width=100, valueGetter="album"),
+            ColumnDefn("Bucket Path", "left", width=300, valueGetter="bucketPath"),
             ColumnDefn("Local Path", "left", width=400, valueGetter="localPath")
         ])
 
@@ -86,15 +87,25 @@ class Dialog(wx.Panel):
     def populate(self):
         normal_path = os.path.normpath(self.path_to_root)
         root = os.path.basename(normal_path)
+        print(root, normal_path)
         f_ext = self.combo_file_extension.GetValue()  # file extension
-        paths = list(glob.iglob(self.path_to_root +
-                     f"/**/*{'.' + f_ext}", recursive=True))
+        paths = list(glob.iglob(self.path_to_root + f"/**/*{'.' + f_ext}", recursive=True))
 
         self.files = []  # removes current items from list
         for localPath in paths:
-            bucketPath = localPath.split(root)[1]
+            filename = os.path.basename(localPath)
+
+            dirname=os.path.dirname(localPath)
+            album = os.path.basename(dirname)
+
+            if root == album:
+                bucketPath = f'{album}/{filename}'
+            else:
+                bucketPath = f'{root}/{album}/{filename}'
+
             newRow = [fileObj(
-                filename=os.path.basename(localPath),
+                album=album,
+                filename=filename,
                 bucketPath=bucketPath,
                 localPath=localPath
                 )]
@@ -144,17 +155,8 @@ class Dialog(wx.Panel):
         self.populate()
         self.panel_components.Layout()
 
-    def getCheckedItems(self):
-        checkedItems = self.fileList.GetCheckedObjects()
-        items = []
-        for row, obj in enumerate(checkedItems):
-            items.append({
-                'filename': obj.filename,
-                'bucketpath': obj.bucketPath,
-                'filepath': obj.localPath
-            })
-
-        return items
+    def getCheckedObjects(self):
+        return self.fileList.GetCheckedObjects()
 
 
 class MyFrame(wx.Frame):

@@ -48,23 +48,31 @@ class Bucket():
         file_list = []
         for file_info, folder_name in self.bucket.ls(recursive=True):
             file_list.append({
-                'folder_name':folder_name,
-                'file_name':file_info.file_name,
-                'timestamp':file_info.upload_timestamp
-                })
+                'folder_name': folder_name,
+                'file_name': file_info.file_name,
+                'timestamp': file_info.upload_timestamp
+            })
         return file_list
 
-    def upload_to_bucket(self, local_file_path, b2_file_name, file_info):
-        self.bucket.upload_local_file(
-            local_file=local_file_path,
-            file_name=b2_file_name,
-            file_infos=file_info,
-        )
+    def upload_to_bucket(self, files, b2_file_name):
+        FileVersions = []
+        file_info = {'how': 'good-file'}
+
+        for file in files:
+            FileVersion = self.bucket.upload_local_file(
+                local_file=file['localpath'],
+                file_name=file['bucketpath'],
+                file_infos=file_info,
+            )
+
+            FileVersions.append(FileVersion)
+
+        return True, FileVersions
 
 
 def main():
     backblazeObj = Backblaze(APPLICATION_KEY_ID, APPLICATION_KEY)
-    bucketObj = backblazeObj.get_bucket('jr-portfolio')
+    bucketObj = backblazeObj.get_bucket(KEY_NAME)
     print(bucketObj.list_files())
 
 

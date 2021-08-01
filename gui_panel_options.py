@@ -1,3 +1,7 @@
+from backblaze import Backblaze
+from mongodb import Collection
+from settings import APPLICATION_KEY_ID, APPLICATION_KEY, KEY_NAME
+
 import wx
 from file_objects import jpgObj
 
@@ -8,6 +12,8 @@ class Options(wx.Panel):
         # instance variables -------------------------------------------------------------------------------------------
         self.parent = parent
         self.frame = frame
+        self.packaged_b2Files = []
+        self.packaged_MongoDocs = []
 
         # PANELS =======================================================================================================
         self.panel_components = wx.Panel(self, wx.ID_ANY)
@@ -52,16 +58,53 @@ class Options(wx.Panel):
     
     def package(self, evt):
         if self.frame is not None:
-            files = self.frame.panel_dialog.getCheckedItems()
+            files = self.frame.panel_dialog.getCheckedObjects()
 
-            for file in files:
-                img = jpgObj(file['filepath'])
-                print(img.getEXIF())
+            self.packaged_b2Files = []
+            self.packaged_MongoDocs = []
+
+            for fileObj in files:
+                imgObj = jpgObj(fileObj)
+                b2File, meta_doc = imgObj.getPackage()
+
+                self.packaged_b2Files = self.packaged_b2Files + [b2File]
+                self.packaged_MongoDocs = self.packaged_MongoDocs + [meta_doc]
         else:
             pass
 
     def upload(self, evt):
-        pass
+        if self.packaged_b2Files == [] or self.packaged_MongoDocs == []:
+            print('\nPackage files for upload first!')
+            return False
+        else:
+            # BACKBLAZE -------------------------------------------------------------
+            print('\nUploading to Backblaze B2 Bucket')
+            backblazeObj = Backblaze(APPLICATION_KEY_ID, APPLICATION_KEY)
+            bucketObj = backblazeObj.get_bucket(KEY_NAME)
+            res, FileVersions = bucketObj.upload_to_bucket(self.packaged_b2Files)
+
+            if res:
+                print('Completed upload to Backblaze Bucket')
+            else:
+                print('[UPLOAD FAILED] uploade to Backblaze Bucket has failed!')
+                return False
+
+            for row, fileVersion in enumerate(FileVersions):
+                self.packagedFiles[row].b2id = fileVersion.id_
+
+            # MONGODB ---------------------------------------------------------------
+            print('\nUpdating database documents on MongoDB')
+            res, ids = Collection.update(self.packaged_MongoDocs)
+            if res:
+                print('Completed document update to MongoDB database!')
+                for id in ids:
+                    print(id)
+            else:
+                print('[UPLOAD FAILED] document update to MongoDB database failed!')
+                return False
+            
+            return True
+
 
 
 class MyFrame(wx.Frame):

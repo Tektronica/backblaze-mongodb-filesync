@@ -48,7 +48,7 @@ class Collection:
             x = self.mycol.insert_many(doc)
 
         # print list of the _id values of the inserted documents:
-        return x.inserted_ids
+        return True, x.inserted_ids
 
 
 # Example implementation
