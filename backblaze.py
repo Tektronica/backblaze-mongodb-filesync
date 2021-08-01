@@ -54,7 +54,7 @@ class Bucket():
             })
         return file_list
 
-    def upload_to_bucket(self, files, b2_file_name):
+    def upload_to_bucket(self, files):
         FileVersions = []
         file_info = {'how': 'good-file'}
 

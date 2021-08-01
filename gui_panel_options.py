@@ -1,6 +1,6 @@
 from backblaze import Backblaze
 from mongodb import Collection
-from settings import APPLICATION_KEY_ID, APPLICATION_KEY, KEY_NAME
+from settings import APPLICATION_KEY_ID, APPLICATION_KEY, KEY_NAME, USERNAME, PASSWORD, DATABASE
 
 import wx
 from file_objects import jpgObj
@@ -78,9 +78,14 @@ class Options(wx.Panel):
             return False
         else:
             # BACKBLAZE -------------------------------------------------------------
-            print('\nUploading to Backblaze B2 Bucket')
+
             backblazeObj = Backblaze(APPLICATION_KEY_ID, APPLICATION_KEY)
             bucketObj = backblazeObj.get_bucket(KEY_NAME)
+
+            print(f'\nReviewing current file list in {KEY_NAME} bucket')
+            print(bucketObj.list_files())
+
+            print('\nUploading to Backblaze B2 Bucket')
             res, FileVersions = bucketObj.upload_to_bucket(self.packaged_b2Files)
 
             if res:
@@ -90,11 +95,14 @@ class Options(wx.Panel):
                 return False
 
             for row, fileVersion in enumerate(FileVersions):
-                self.packagedFiles[row].b2id = fileVersion.id_
+                self.packaged_MongoDocs[row]['b2id'] = fileVersion.id_
 
             # MONGODB ---------------------------------------------------------------
             print('\nUpdating database documents on MongoDB')
-            res, ids = Collection.update(self.packaged_MongoDocs)
+            col = 'gallery'
+            colObj = Collection(USERNAME, PASSWORD, DATABASE, col)
+            res, ids = colObj.insert(self.packaged_MongoDocs)
+
             if res:
                 print('Completed document update to MongoDB database!')
                 for id in ids:
