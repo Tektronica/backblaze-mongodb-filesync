@@ -72,6 +72,7 @@ class Options(wx.Panel):
         else:
             pass
 
+
     def upload(self, evt):
         if self.packaged_b2Files == [] or self.packaged_MongoDocs == []:
             print('\nPackage files for upload first!')
@@ -82,8 +83,8 @@ class Options(wx.Panel):
             backblazeObj = Backblaze(APPLICATION_KEY_ID, APPLICATION_KEY)
             bucketObj = backblazeObj.get_bucket(KEY_NAME)
 
-            print(f'\nReviewing current file list in {KEY_NAME} bucket')
-            print(bucketObj.list_files())
+            # print(f'\nReviewing current file list in {KEY_NAME} bucket')
+            # print(bucketObj.list_files())
 
             print('\nUploading to Backblaze B2 Bucket')
             res, FileVersions = bucketObj.upload_to_bucket(self.packaged_b2Files)

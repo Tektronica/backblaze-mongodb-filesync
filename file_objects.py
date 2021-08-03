@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, IptcImagePlugin
 from PIL.ExifTags import TAGS
 from settings import BACKBLAZE_URL_HEAD
 
@@ -12,6 +12,7 @@ class fileObj():
 class jpgObj():
     def __init__(self, fileObj):
         self.exif = None
+        self.iptc = None
 
         self.album = fileObj.album
         self.filename = fileObj.filename
@@ -24,6 +25,9 @@ class jpgObj():
         self.date = ''
         self.b2id = ''
 
+        self.title = ''
+        self.description = ''
+
         self._readEXIF()
 
     def _readEXIF(self):
@@ -31,8 +35,8 @@ class jpgObj():
         # read the image data using PIL
         image = Image.open(self.localPath)
 
-        # extract EXIF data
-        exifdata = image.getexif()
+        # extract EXIF and IPTC data from image
+        # exifdata = image.getexif()
 
         # iterating over all EXIF data fields
         self.exif = {
@@ -40,8 +44,21 @@ class jpgObj():
             for k, v in image._getexif().items()
             if k in TAGS
         }
+
+        # https://iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#synchronising-iim-elements-with-existing-xmp-properties
+        # {'title':'title', 'description':'<description>'} --> 
+        # {(2, 5): b'<this is some title>', (2, 120): b'<this is some description>'}
+        self.iptc = IptcImagePlugin.getiptcinfo(image)  # dictionary containing IIM spec keys to binary values 
+
         self.date = self.get_exif_by_key('DateTimeOriginal', 'CreateDate')
         self.lens = self.get_exif_by_key('LensModel', 'LensInfo')
+
+        if self.iptc:
+            self.title = self.get_iptc_by_key((2, 5))  # title (2, 5)
+            self.description = self.get_iptc_by_key((2, 120))  # description (2, 120)
+
+        else:
+            print(" This image has no iptc info")
         
         return True
 
@@ -59,19 +76,31 @@ class jpgObj():
             print('KeyError in requesting exif key. Returning empty string.')
             return ''
 
+    def get_iptc_by_key(self, key, alt_key=''):
+        # first attempt using first key
+        try:
+            return self.iptc[key].decode('utf-8')
+        except KeyError:
+            print('KeyError in requesting iptc by key. Returning empty string.')
+            return ''
+
     def getEXIF(self):
         return self.exif
 
     def getPackage(self):
+        # backblaze image information needed for upload (filename is actually not needed)
         b2File = {
             'filename': self.filename,
             'localpath': self.localPath,
             'bucketpath': self.bucketPath
             }
 
+        # document sent to MongoDB
         meta_doc = {
             'album': self.album,
             'filename': self.filename,
+            'title': self.title,
+            'description': self.description,
             'bucketpath': self.bucketPath,
             'url': self.url,
             'thumbnailurl': self.thumbnailUrl,
